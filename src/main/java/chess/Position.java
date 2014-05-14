@@ -8,8 +8,8 @@ public class Position {
     public static final int MAX_ROW = 8;
     public static final char MIN_COLUMN = 'a';
     public static final char MAX_COLUMN = 'h';
-    private int row;
-    private char column;
+    private final int row;
+    private final char column;
 
     /**
      * Create a new position object
