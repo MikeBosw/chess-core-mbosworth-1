@@ -49,4 +49,9 @@ public class GameStateTest {
         assertTrue("A queen should be at d8", blackQueen instanceof Queen);
         assertEquals("The queen at d8 should be owned by Black", Player.Black, blackQueen.getOwner());
     }
+
+    @Test
+    public void testCheckmateCheck() {
+        //TODO
+    }
 }
