@@ -14,10 +14,25 @@ import static junit.framework.Assert.*;
 public class GameStateTest {
 
     private GameState state;
+    private GameState checkState;
+    private GameState checkMateState;
 
     @Before
     public void setUp() {
         state = new GameState();
+
+        checkMateState = new GameState();
+        checkMateState.reset()
+        checkMateState.placePiece(new Queen(Player.Black), new Position("d5"))
+        checkMateState.placePiece(new Queen(Player.Black), new Position("f5"))
+        def king = checkMateState.positionToPieceMap.remove(new Position("e1"))
+        checkMateState.placePiece(king, new Position("e5"))
+
+        checkState = new GameState();
+        checkState.reset()
+        checkState.placePiece(new Queen(Player.Black), new Position("d5"))
+        king = checkState.positionToPieceMap.remove(new Position("e1"))
+        checkState.placePiece(king, new Position("e5"))
     }
 
     @Test
@@ -52,6 +67,17 @@ public class GameStateTest {
 
     @Test
     public void testCheckmateCheck() {
+        def moves = checkMateState.findPossibleMoves(Player.White)
+        assert moves.empty
+        //TODO
+    }
+
+    @Test
+    public void testCheckCheck() {
+        def moves = checkState.findPossibleMoves(Player.White)
+        def expected = ["d5", "f4"]
+        assert moves.collect{move->""+move.end}.containsAll(expected)
+        assert expected.containsAll(moves.collect{move->""+move.end})
         //TODO
     }
 }
