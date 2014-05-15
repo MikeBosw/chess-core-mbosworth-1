@@ -48,6 +48,7 @@ public class MoveAction implements Action {
             gameState.move(move);
             feedback.writeOutput("Moved: " + move);
         }
+        //TODO: put the checkmate check in GameState. have it set a flag somewhere marking the game as ended.
         Set<Move> nextPossibleMoves;
         nextPossibleMoves = gameState.findPossibleMoves(currentPlayer);
         if (nextPossibleMoves.isEmpty()) {
@@ -58,7 +59,6 @@ public class MoveAction implements Action {
         if (nextPossibleMoves.isEmpty()) {
             feedback.writeOutput(opponent + " has lost!");
         }
-        //TODO: in GameState, set a flag somewhere marking the game as ended if somebody lost.
     }
 
     public void execute(String input) {
