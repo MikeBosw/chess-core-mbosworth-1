@@ -10,7 +10,7 @@ import java.util.Map;
  * Class that represents the current state of the game.  Basically, what pieces are in which positions on the
  * board.
  */
-public class GameState {
+public class GameState implements BoardView {
 
     /**
      * The current player
@@ -89,6 +89,7 @@ public class GameState {
      * @param position The position to inquire about.
      * @return The piece at that position, or null if it does not exist.
      */
+    @Override
     public Piece getPieceAt(Position position) {
         return positionToPieceMap.get(position);
     }

@@ -1,6 +1,11 @@
 package chess.pieces;
 
+import chess.BoardView;
+import chess.GameState;
 import chess.Player;
+import chess.Position;
+
+import java.util.Set;
 
 /**
  * A base class for chess pieces
@@ -26,4 +31,6 @@ public abstract class Piece {
     }
 
     protected abstract char getIdentifyingCharacter();
+
+    public abstract Set<Position> getNextPositions(Position origin, BoardView boardView);
 }
