@@ -22,6 +22,14 @@ public class Move implements Comparable<Move> {
         this.end = new Position(end);
     }
 
+    public Position getStart() {
+        return start;
+    }
+
+    public Position getEnd() {
+        return end;
+    }
+
     @Override
     public String toString() {
         return "{" + start + " -> " + end + '}';

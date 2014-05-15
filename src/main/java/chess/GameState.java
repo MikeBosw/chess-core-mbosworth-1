@@ -14,6 +14,21 @@ import java.util.Set;
  */
 public class GameState implements BoardView {
 
+    public static enum MoveViolation {
+        NONE(""),
+        DESTINATION_OCCUPIED("The destination is occupied."),
+        WRONG_PLAYER("The piece at this location is not owned by the current player."),
+        CHECK("This move would endanger your king."),
+        NO_SUCH_PIECE("No piece exists at that location."),
+        NO_PATH("The piece at this location cannot make such a move."),;
+
+        private final String reason;
+
+        MoveViolation(String reason) {
+            this.reason = reason;
+        }
+    }
+
     /**
      * The current player
      */
@@ -105,6 +120,24 @@ public class GameState implements BoardView {
         positionToPieceMap.put(position, piece);
     }
 
+    /**
+     * Method to move a piece from one position to another.
+     * @param piece The piece to place
+     * @param begin The start position
+     * @param end The end position
+     * @return The piece that had been occupying the end position.
+     */
+    private Piece movePiece(Piece piece, Position begin, Position end) {
+        Piece removed = positionToPieceMap.remove(begin);
+        if (removed == null) {
+            throw new IllegalStateException("Piece not found at " + begin + "!");
+        }
+        if (!piece.equals(removed)) {
+            throw new IllegalArgumentException("Piece to be moved does not reside at " + begin + "!");
+        }
+        return positionToPieceMap.put(end, piece);
+    }
+
     public Set<Move> findPossibleMoves() {
         Player player = getCurrentPlayer();
         Set<Move> allMoves = Sets.newTreeSet();
@@ -121,10 +154,91 @@ public class GameState implements BoardView {
                 Set<Position> nextPositions = piece.getNextPositions(position, this);
                 for (Position nextPosition : nextPositions) {
                     //TODO: validate the move. Would the player be putting his or her king in check?
-                    allMoves.add(new Move(position, nextPosition));
+                    Move move = new Move(position, nextPosition);
+                    MoveViolation violation = verifyMove(move);
+                    if (violation == MoveViolation.NONE) {
+                        allMoves.add(move);
+                    }
                 }
             }
         }
         return allMoves;
+    }
+
+    /**
+     * Makes the given move. If the move is unsafe, an exception is thrown. Callers should use {@link #verifyMove}
+     * beforehand to ensure the move is safe, or {@link #findPossibleMoves()}.
+     *
+     * @param move The move to make.
+     */
+    public void move(Move move) {
+        MoveViolation violation = verifyMove(move);
+        if (violation != MoveViolation.NONE) {
+            throw new IllegalMoveException(move + ": " + violation.reason); //programming error, not user error.
+        }
+        Position start = move.getStart();
+        Piece piece = getPieceAt(start);
+        Position end = move.getEnd();
+        movePiece(piece, start, end);
+        currentPlayer = currentPlayer.opposite();
+    }
+
+    /**
+     * Check whether the given move is valid.
+     *
+     * @param move The move to make.
+     * @return The violation that would be caused by this move, or {@link MoveViolation#NONE} if none.
+     */
+    public MoveViolation verifyMove(Move move) {
+        Position start = move.getStart();
+        Position end = move.getEnd();
+        Piece piece = getPieceAt(start);
+        if (piece == null) {
+            return MoveViolation.NO_SUCH_PIECE;
+        }
+        /* The NO_PATH check here is redundant, as the program is currently implemented - squaring the time complexity
+         * of the findPossibleMoves method. This *might* be a (pointless) performance bottleneck in some products. I
+         * submit that we don't care about the milliseconds lost here because our product is human-to-computer, so,
+         * let's do it, in keeping with the principle of least surprise. */
+        Set<Position> nextPositions = piece.getNextPositions(start, this);
+        if (!nextPositions.contains(end)) {
+            return MoveViolation.NO_PATH;
+        }
+        if (piece.getOwner() != getCurrentPlayer()) {
+            return MoveViolation.WRONG_PLAYER;
+        }
+        Piece captured = movePiece(piece, start, end);
+        try {
+            boolean isCastleMove = isCastleMove(move);
+            if (captured != null && !isCastleMove && captured.getOwner() == piece.getOwner()) {
+                return MoveViolation.DESTINATION_OCCUPIED;
+            }
+            if (isKingEndangered()) {
+                return MoveViolation.CHECK;
+            }
+            return MoveViolation.NONE;
+        } finally {
+            //we moved the piece. revert!
+            movePiece(piece, end, start);
+            if (captured != null) {
+                placePiece(captured, end);
+            }
+        }
+    }
+
+    private boolean isKingEndangered() {
+        //TODO: implement this
+        return false;
+    }
+
+    private boolean isCastleMove(Move move) {
+        //TODO: implement this
+        return false;
+    }
+
+    public static class IllegalMoveException extends RuntimeException {
+        public IllegalMoveException(String move) {
+            super("Illegal move: " + move);
+        }
     }
 }

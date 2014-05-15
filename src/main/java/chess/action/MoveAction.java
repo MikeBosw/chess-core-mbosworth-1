@@ -38,6 +38,9 @@ public class MoveAction implements Action {
         Set<Move> possibleMoves = gameState.findPossibleMoves();
         if (!possibleMoves.contains(move)) {
             feedback.writeOutput("Illegal move: " + move);
+        } else {
+            gameState.move(move);
+            feedback.writeOutput("Moved: " + move);
         }
     }
 
