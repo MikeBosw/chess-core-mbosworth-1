@@ -77,7 +77,7 @@ public class GameState implements BoardView {
         placePiece(new Knight(Player.Black), new Position("b8"));
         placePiece(new Bishop(Player.Black), new Position("c8"));
         placePiece(new Queen(Player.Black), new Position("d8"));
-        placePiece(new King(Player.Black), new Position("e1"));
+        placePiece(new King(Player.Black), new Position("e8"));
         placePiece(new Bishop(Player.Black), new Position("f8"));
         placePiece(new Knight(Player.Black), new Position("g8"));
         placePiece(new Rook(Player.Black), new Position("h8"));
