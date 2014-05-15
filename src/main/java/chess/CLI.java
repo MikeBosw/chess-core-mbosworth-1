@@ -84,6 +84,9 @@ public class CLI {
                 if (piece == null) {
                     continue;
                 }
+                if (piece.getOwner() != gameState.getCurrentPlayer()) {
+                    continue;
+                }
                 Set<Position> moves = piece.getNextPositions(position, gameState);
                 for (Position move : moves) {
                     writeOutput(position + " " + move);
