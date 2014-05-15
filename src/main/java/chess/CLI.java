@@ -1,6 +1,7 @@
 package chess;
 
 import chess.pieces.Piece;
+import com.google.common.collect.Sets;
 
 import java.io.*;
 import java.util.Set;
@@ -100,6 +101,14 @@ public class CLI {
     }
 
     private void listMoves() {
+        Set<Move> moves = findMoves();
+        for (Move move : moves) {
+            writeOutput("" + move);
+        }
+    }
+
+    private Set<Move> findMoves() {
+        Set<Move> allMoves = Sets.newHashSet();
         for (char c = Position.MIN_COLUMN; c <= Position.MAX_COLUMN; c++) {
             for (int i = Position.MIN_ROW; i <= Position.MAX_ROW; i++) {
                 Position position = new Position(c, i);
@@ -110,12 +119,13 @@ public class CLI {
                 if (piece.getOwner() != gameState.getCurrentPlayer()) {
                     continue;
                 }
-                Set<Position> moves = piece.getNextPositions(position, gameState);
-                for (Position move : moves) {
-                    writeOutput(position + " " + move);
+                Set<Position> nextPositions = piece.getNextPositions(position, gameState);
+                for (Position nextPosition : nextPositions) {
+                    allMoves.add(new Move(position, nextPosition));
                 }
             }
         }
+        return allMoves;
     }
 
     private void doNewGame() {
@@ -187,9 +197,14 @@ public class CLI {
     }
 
     private static class Move {
-        final Position start, end;
+        private final Position start, end;
 
-        public Move(String start, String end) {
+        private Move(Position start, Position end) {
+            this.start = start;
+            this.end = end;
+        }
+
+        private Move(String start, String end) {
             this.start = new Position(start);
             this.end = new Position(end);
         }
