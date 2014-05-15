@@ -67,12 +67,36 @@ public class CLI {
                 } else if (input.equals("list")) {
                     listMoves();
                 } else if (input.startsWith("move")) {
-                    writeOutput("====> Move Is Not Implemented (yet) <====");
+                    Move move = parseMove(input);
+                    if (move == null) {
+                        writeOutput("Incorrect syntax. Type 'help' for a list of commands.");
+                    } else {
+                        move(move);
+                    }
                 } else {
                     writeOutput("I didn't understand that.  Type 'help' for a list of commands.");
                 }
             }
         }
+    }
+
+    private Move parseMove(String input) {
+        int argsIndex = input.indexOf("move ");
+        if (argsIndex < 0) {
+            return null;
+        }
+        String argString = input.substring(argsIndex + "move ".length());
+        String[] args = argString.split(" ");
+        if (args.length != 2) {
+            return null;
+        }
+        return new Move(args[0], args[1]);
+    }
+
+    private void move(Move move) {
+        writeOutput("Move: " + move);
+        writeOutput("====> Move Is Not Implemented (yet) <====");
+
     }
 
     private void listMoves() {
@@ -160,5 +184,19 @@ public class CLI {
     public static void main(String[] args) {
         CLI cli = new CLI(System.in, System.out);
         cli.startEventLoop();
+    }
+
+    private static class Move {
+        final Position start, end;
+
+        public Move(String start, String end) {
+            this.start = new Position(start);
+            this.end = new Position(end);
+        }
+
+        @Override
+        public String toString() {
+            return "{" + start + " -> " + end + '}';
+        }
     }
 }
