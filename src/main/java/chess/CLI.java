@@ -1,23 +1,23 @@
 package chess;
 
+import chess.action.ListAction;
+import chess.action.MoveAction;
 import chess.pieces.Piece;
-import com.google.common.collect.Sets;
 
 import java.io.*;
-import java.util.Set;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * This class provides the basic CLI interface to the Chess game.
  */
-public class CLI {
+public class CLI implements UserFeedback {
     private static final String NEWLINE = System.getProperty("line.separator");
 
     private final BufferedReader inReader;
     private final PrintStream outStream;
 
-    private GameState gameState = null;
+    private MoveAction moveAction;
+    private ListAction listAction;
+    private GameState gameState;
 
     public CLI(InputStream inputStream, PrintStream outStream) {
         this.inReader = new BufferedReader(new InputStreamReader(inputStream));
@@ -29,7 +29,8 @@ public class CLI {
      * Write the string to the output
      * @param str The string to write
      */
-    private void writeOutput(String str) {
+    @Override
+    public void writeOutput(String str) {
         this.outStream.println(str);
     }
 
@@ -68,15 +69,9 @@ public class CLI {
                 } else if (input.equals("board")) {
                     writeOutput("Current Game:");
                 } else if (input.equals("list")) {
-                    listMoves();
+                    listAction.execute(input);
                 } else if (input.startsWith("move")) {
-                    //TODO: command pattern?
-                    Move move = parseMove(input);
-                    if (move == null) {
-                        writeOutput("Incorrect syntax. Type 'help' for a list of commands.");
-                    } else {
-                        move(move);
-                    }
+                    moveAction.execute(input);
                 } else {
                     writeOutput("I didn't understand that.  Type 'help' for a list of commands.");
                 }
@@ -84,59 +79,11 @@ public class CLI {
         }
     }
 
-    private Move parseMove(String input) {
-        int argsIndex = input.indexOf("move ");
-        if (argsIndex < 0) {
-            return null;
-        }
-        String argString = input.substring(argsIndex + "move ".length());
-        String[] args = argString.split(" ");
-        if (args.length != 2) {
-            return null;
-        }
-        return new Move(args[0], args[1]);
-    }
-
-    private void move(Move move) {
-        Set<Move> possibleMoves = findPossibleMoves();
-        if (!possibleMoves.contains(move)) {
-            writeOutput("Illegal move: " + move);
-        }
-    }
-
-    private void listMoves() {
-        Set<Move> moves = findPossibleMoves();
-        for (Move move : moves) {
-            writeOutput("" + move);
-        }
-    }
-
-    private Set<Move> findPossibleMoves() {
-        Player player = gameState.getCurrentPlayer();
-        Set<Move> allMoves = Sets.newHashSet();
-        for (char c = Position.MIN_COLUMN; c <= Position.MAX_COLUMN; c++) {
-            for (int i = Position.MIN_ROW; i <= Position.MAX_ROW; i++) {
-                Position position = new Position(c, i);
-                Piece piece = gameState.getPieceAt(position);
-                if (piece == null) {
-                    continue;
-                }
-                if (piece.getOwner() != player) {
-                    continue;
-                }
-                Set<Position> nextPositions = piece.getNextPositions(position, gameState);
-                for (Position nextPosition : nextPositions) {
-                    //TODO: validate the move. Would the player be putting his or her king in check?
-                    allMoves.add(new Move(position, nextPosition));
-                }
-            }
-        }
-        return allMoves;
-    }
-
     private void doNewGame() {
         gameState = new GameState();
         gameState.reset();
+        moveAction = new MoveAction(gameState, this);
+        listAction = new ListAction(gameState, this);
     }
 
     private void showBoard() {
@@ -202,41 +149,4 @@ public class CLI {
         cli.startEventLoop();
     }
 
-    private static class Move {
-        private final Position start, end;
-
-        private Move(Position start, Position end) {
-            checkNotNull(start, "start");
-            checkNotNull(end, "end");
-            this.start = start;
-            this.end = end;
-        }
-
-        private Move(String start, String end) {
-            this.start = new Position(start);
-            this.end = new Position(end);
-        }
-
-        @Override
-        public String toString() {
-            return "{" + start + " -> " + end + '}';
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            Move move = (Move) o;
-
-            return end.equals(move.end) && start.equals(move.start);
-        }
-
-        @Override
-        public int hashCode() {
-            int result = start.hashCode();
-            result = 31 * result + end.hashCode();
-            return result;
-        }
-    }
 }

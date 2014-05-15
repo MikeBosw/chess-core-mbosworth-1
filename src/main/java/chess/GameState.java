@@ -2,9 +2,11 @@ package chess;
 
 
 import chess.pieces.*;
+import com.google.common.collect.Sets;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Class that represents the current state of the game.  Basically, what pieces are in which positions on the
@@ -26,7 +28,7 @@ public class GameState implements BoardView {
      * Create the game state.
      */
     public GameState() {
-        positionToPieceMap = new HashMap<Position, Piece>();
+        positionToPieceMap = new HashMap<>();
     }
 
     public Player getCurrentPlayer() {
@@ -101,5 +103,28 @@ public class GameState implements BoardView {
      */
     private void placePiece(Piece piece, Position position) {
         positionToPieceMap.put(position, piece);
+    }
+
+    public Set<Move> findPossibleMoves() {
+        Player player = getCurrentPlayer();
+        Set<Move> allMoves = Sets.newTreeSet();
+        for (char c = Position.MIN_COLUMN; c <= Position.MAX_COLUMN; c++) {
+            for (int i = Position.MIN_ROW; i <= Position.MAX_ROW; i++) {
+                Position position = new Position(c, i);
+                Piece piece = getPieceAt(position);
+                if (piece == null) {
+                    continue;
+                }
+                if (piece.getOwner() != player) {
+                    continue;
+                }
+                Set<Position> nextPositions = piece.getNextPositions(position, this);
+                for (Position nextPosition : nextPositions) {
+                    //TODO: validate the move. Would the player be putting his or her king in check?
+                    allMoves.add(new Move(position, nextPosition));
+                }
+            }
+        }
+        return allMoves;
     }
 }
