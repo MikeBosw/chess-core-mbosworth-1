@@ -7,7 +7,9 @@ package chess.action;
 
 import chess.GameState;
 import chess.Move;
+import chess.Position;
 import chess.UserFeedback;
+import chess.pieces.Piece;
 
 import java.util.Set;
 
@@ -35,7 +37,13 @@ public class MoveAction implements Action {
     }
 
     private void move(Move move) {
-        Set<Move> possibleMoves = gameState.findPossibleMoves();
+        Position start = move.getStart();
+        Piece piece = gameState.getPieceAt(start);
+        if (piece == null || piece.getOwner() != gameState.getCurrentPlayer()) {
+            feedback.writeOutput("You don't own a piece at " + start + ".");
+            return;
+        }
+        Set<Move> possibleMoves = gameState.findPossibleMoves(piece, start);
         if (!possibleMoves.contains(move)) {
             feedback.writeOutput("Illegal move: " + move);
         } else {

@@ -9,7 +9,7 @@ public enum Player {
     /**
      * @return The opposite player.
      */
-    public Player opposite() {
+    public Player opponent() {
         return this == White ? Black : White;
     }
 

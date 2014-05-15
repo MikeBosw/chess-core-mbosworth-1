@@ -59,7 +59,7 @@ public class GameState implements BoardView {
         placePiece(new Knight(Player.White), new Position("b1"));
         placePiece(new Bishop(Player.White), new Position("c1"));
         placePiece(new Queen(Player.White), new Position("d1"));
-        placePiece(new King(Player.White), new Position("e1"));
+        placePiece(new King(Player.White), new Position("e6"));
         placePiece(new Bishop(Player.White), new Position("f1"));
         placePiece(new Knight(Player.White), new Position("g1"));
         placePiece(new Rook(Player.White), new Position("h1"));
@@ -77,7 +77,7 @@ public class GameState implements BoardView {
         placePiece(new Knight(Player.Black), new Position("b8"));
         placePiece(new Bishop(Player.Black), new Position("c8"));
         placePiece(new Queen(Player.Black), new Position("d8"));
-        placePiece(new King(Player.Black), new Position("e8"));
+        placePiece(new King(Player.Black), new Position("e1"));
         placePiece(new Bishop(Player.Black), new Position("f8"));
         placePiece(new Knight(Player.Black), new Position("g8"));
         placePiece(new Rook(Player.Black), new Position("h8"));
@@ -140,6 +140,10 @@ public class GameState implements BoardView {
 
     public Set<Move> findPossibleMoves() {
         Player player = getCurrentPlayer();
+        return findPossibleMoves(player, true);
+    }
+
+    private Set<Move> findPossibleMoves(Player player, boolean validate) {
         Set<Move> allMoves = Sets.newTreeSet();
         for (char c = Position.MIN_COLUMN; c <= Position.MAX_COLUMN; c++) {
             for (int i = Position.MIN_ROW; i <= Position.MAX_ROW; i++) {
@@ -151,18 +155,29 @@ public class GameState implements BoardView {
                 if (piece.getOwner() != player) {
                     continue;
                 }
-                Set<Position> nextPositions = piece.getNextPositions(position, this);
-                for (Position nextPosition : nextPositions) {
-                    //TODO: validate the move. Would the player be putting his or her king in check?
-                    Move move = new Move(position, nextPosition);
-                    MoveViolation violation = verifyMove(move);
-                    if (violation == MoveViolation.NONE) {
-                        allMoves.add(move);
-                    }
-                }
+                Set<Move> moves = findPossibleMoves(piece, position, validate);
+                allMoves.addAll(moves);
             }
         }
         return allMoves;
+    }
+
+    public Set<Move> findPossibleMoves(Piece piece, Position position) {
+        //todo: confirm the given piece is at the given position
+        return findPossibleMoves(piece, position, true);
+    }
+
+    private Set<Move> findPossibleMoves(Piece piece, Position position, boolean validate) {
+        Set<Move> moves = Sets.newTreeSet();
+        Set<Position> nextPositions = piece.getNextPositions(position, this);
+        for (Position nextPosition : nextPositions) {
+            Move move = new Move(position, nextPosition);
+            MoveViolation violation = validate ? verifyMove(move) : MoveViolation.NONE;
+            if (violation == MoveViolation.NONE) {
+                moves.add(move);
+            }
+        }
+        return moves;
     }
 
     /**
@@ -180,7 +195,7 @@ public class GameState implements BoardView {
         Piece piece = getPieceAt(start);
         Position end = move.getEnd();
         movePiece(piece, start, end);
-        currentPlayer = currentPlayer.opposite();
+        currentPlayer = currentPlayer.opponent();
     }
 
     /**
@@ -199,7 +214,7 @@ public class GameState implements BoardView {
         /* The NO_PATH check here is redundant, as the program is currently implemented - squaring the time complexity
          * of the findPossibleMoves method. This *might* be a (pointless) performance bottleneck in some products. I
          * submit that we don't care about the milliseconds lost here because our product is human-to-computer, so,
-         * let's do it, in keeping with the principle of least surprise. */
+         * let's do it for now, in keeping with the principle of least surprise. And we can refactor it later. */
         Set<Position> nextPositions = piece.getNextPositions(start, this);
         if (!nextPositions.contains(end)) {
             return MoveViolation.NO_PATH;
@@ -227,7 +242,16 @@ public class GameState implements BoardView {
     }
 
     private boolean isKingEndangered() {
-        //TODO: implement this
+        Player currentPlayer = getCurrentPlayer();
+        Player opponent = currentPlayer.opponent();
+        Set<Move> possibleMoves = findPossibleMoves(opponent, false);
+        for (Move move : possibleMoves) {
+            Position end = move.getEnd();
+            Piece capture = getPieceAt(end);
+            if (capture instanceof King) {
+                return true;
+            }
+        }
         return false;
     }
 
