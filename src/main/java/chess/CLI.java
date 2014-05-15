@@ -76,7 +76,6 @@ public class CLI {
     }
 
     private void listMoves() {
-        writeOutput("====> List Is Not Implemented (yet) <====");
         for (char c = Position.MIN_COLUMN; c <= Position.MAX_COLUMN; c++) {
             for (int i = Position.MIN_ROW; i <= Position.MAX_ROW; i++) {
                 Position position = new Position(c, i);
