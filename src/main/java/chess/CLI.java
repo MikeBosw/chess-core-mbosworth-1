@@ -6,6 +6,8 @@ import com.google.common.collect.Sets;
 import java.io.*;
 import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
  * This class provides the basic CLI interface to the Chess game.
  */
@@ -68,6 +70,7 @@ public class CLI {
                 } else if (input.equals("list")) {
                     listMoves();
                 } else if (input.startsWith("move")) {
+                    //TODO: command pattern?
                     Move move = parseMove(input);
                     if (move == null) {
                         writeOutput("Incorrect syntax. Type 'help' for a list of commands.");
@@ -95,19 +98,21 @@ public class CLI {
     }
 
     private void move(Move move) {
-        writeOutput("Move: " + move);
-        writeOutput("====> Move Is Not Implemented (yet) <====");
-
+        Set<Move> possibleMoves = findPossibleMoves();
+        if (!possibleMoves.contains(move)) {
+            writeOutput("Illegal move: " + move);
+        }
     }
 
     private void listMoves() {
-        Set<Move> moves = findMoves();
+        Set<Move> moves = findPossibleMoves();
         for (Move move : moves) {
             writeOutput("" + move);
         }
     }
 
-    private Set<Move> findMoves() {
+    private Set<Move> findPossibleMoves() {
+        Player player = gameState.getCurrentPlayer();
         Set<Move> allMoves = Sets.newHashSet();
         for (char c = Position.MIN_COLUMN; c <= Position.MAX_COLUMN; c++) {
             for (int i = Position.MIN_ROW; i <= Position.MAX_ROW; i++) {
@@ -116,11 +121,12 @@ public class CLI {
                 if (piece == null) {
                     continue;
                 }
-                if (piece.getOwner() != gameState.getCurrentPlayer()) {
+                if (piece.getOwner() != player) {
                     continue;
                 }
                 Set<Position> nextPositions = piece.getNextPositions(position, gameState);
                 for (Position nextPosition : nextPositions) {
+                    //TODO: validate the move. Would the player be putting his or her king in check?
                     allMoves.add(new Move(position, nextPosition));
                 }
             }
@@ -200,6 +206,8 @@ public class CLI {
         private final Position start, end;
 
         private Move(Position start, Position end) {
+            checkNotNull(start, "start");
+            checkNotNull(end, "end");
             this.start = start;
             this.end = end;
         }
@@ -212,6 +220,23 @@ public class CLI {
         @Override
         public String toString() {
             return "{" + start + " -> " + end + '}';
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Move move = (Move) o;
+
+            return end.equals(move.end) && start.equals(move.start);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = start.hashCode();
+            result = 31 * result + end.hashCode();
+            return result;
         }
     }
 }
