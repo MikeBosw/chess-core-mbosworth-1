@@ -5,10 +5,7 @@
  */
 package chess.action;
 
-import chess.GameState;
-import chess.Move;
-import chess.Position;
-import chess.UserFeedback;
+import chess.*;
 import chess.pieces.Piece;
 
 import java.util.Set;
@@ -39,7 +36,8 @@ public class MoveAction implements Action {
     private void move(Move move) {
         Position start = move.getStart();
         Piece piece = gameState.getPieceAt(start);
-        if (piece == null || piece.getOwner() != gameState.getCurrentPlayer()) {
+        Player currentPlayer = gameState.getCurrentPlayer();
+        if (piece == null || piece.getOwner() != currentPlayer) {
             feedback.writeOutput("You don't own a piece at " + start + ".");
             return;
         }
@@ -50,6 +48,17 @@ public class MoveAction implements Action {
             gameState.move(move);
             feedback.writeOutput("Moved: " + move);
         }
+        Set<Move> nextPossibleMoves;
+        nextPossibleMoves = gameState.findPossibleMoves(currentPlayer);
+        if (nextPossibleMoves.isEmpty()) {
+            feedback.writeOutput(currentPlayer + " has lost!");
+        }
+        Player opponent = currentPlayer.opponent();
+        nextPossibleMoves = gameState.findPossibleMoves(opponent);
+        if (nextPossibleMoves.isEmpty()) {
+            feedback.writeOutput(opponent + " has lost!");
+        }
+        //TODO: in GameState, set a flag somewhere marking the game as ended if somebody lost.
     }
 
     public void execute(String input) {

@@ -59,7 +59,7 @@ public class GameState implements BoardView {
         placePiece(new Knight(Player.White), new Position("b1"));
         placePiece(new Bishop(Player.White), new Position("c1"));
         placePiece(new Queen(Player.White), new Position("d1"));
-        placePiece(new King(Player.White), new Position("e6"));
+        placePiece(new King(Player.White), new Position("e1"));
         placePiece(new Bishop(Player.White), new Position("f1"));
         placePiece(new Knight(Player.White), new Position("g1"));
         placePiece(new Rook(Player.White), new Position("h1"));
@@ -138,8 +138,7 @@ public class GameState implements BoardView {
         return positionToPieceMap.put(end, piece);
     }
 
-    public Set<Move> findPossibleMoves() {
-        Player player = getCurrentPlayer();
+    public Set<Move> findPossibleMoves(Player player) {
         return findPossibleMoves(player, true);
     }
 
@@ -182,7 +181,7 @@ public class GameState implements BoardView {
 
     /**
      * Makes the given move. If the move is unsafe, an exception is thrown. Callers should use {@link #verifyMove}
-     * beforehand to ensure the move is safe, or {@link #findPossibleMoves()}.
+     * beforehand to ensure the move is safe, or {@link #findPossibleMoves(Player)}.
      *
      * @param move The move to make.
      */

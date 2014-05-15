@@ -7,6 +7,7 @@ package chess.action;
 
 import chess.GameState;
 import chess.Move;
+import chess.Player;
 import chess.UserFeedback;
 
 import java.util.Set;
@@ -22,7 +23,8 @@ public class ListAction implements Action {
 
     @Override
     public void execute(String input) {
-        Set<Move> moves = gameState.findPossibleMoves();
+        Player player = gameState.getCurrentPlayer();
+        Set<Move> moves = gameState.findPossibleMoves(player);
         for (Move move : moves) {
             feedback.writeOutput("" + move);
         }
