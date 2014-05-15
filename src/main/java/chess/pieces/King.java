@@ -1,17 +1,23 @@
 package chess.pieces;
 
-import chess.BoardView;
 import chess.Player;
-import chess.Position;
+import com.google.common.collect.ImmutableSet;
 
+import java.util.Collection;
 import java.util.Set;
 
 /**
  * The King class
  */
 public class King extends Piece {
+
+    private static final Set<int[]> MOVE_OFFSETS = ImmutableSet.copyOf(new int[][]{
+            {1, 1}, {-1, -1}, {1, -1}, {-1, 1},
+            {1, 0}, {0, 1}, {-1, 0}, {0, -1},
+    });
+
     public King(Player owner) {
-        super(owner);
+        super(owner, false);
     }
 
     @Override
@@ -20,7 +26,7 @@ public class King extends Piece {
     }
 
     @Override
-    public Set<Position> getNextPositions(Position origin, BoardView boardView) {
-        throw new UnsupportedOperationException("Not yet implemented.");
+    protected Collection<int[]> getSimpleMoveOffsets() {
+        return MOVE_OFFSETS;
     }
 }

@@ -12,10 +12,16 @@ import org.mockito.runners.MockitoJUnitRunner
 @RunWith(MockitoJUnitRunner.class)
 class BishopTest {
 
-    private static final Set<Position> DIAGONAL_FROM_TOP_LEFT = ['b7', 'c6', 'd5', 'e4', 'f3', 'g2', 'h1'].collect {
+    private static final def DIAGONAL_FROM_TOP_LEFT = ['b7', 'c6', 'd5', 'e4', 'f3', 'g2', 'h1'].collect {
         colRow -> new Position(colRow)
     };
-    private static final Set<Position> DIAGONAL_FROM_BOTTOM_RIGHT = ['a8', 'b7', 'c6', 'd5', 'e4', 'f3', 'g2'].collect {
+    private static final def DIAGONAL_FROM_BOTTOM_RIGHT = ['a8', 'b7', 'c6', 'd5', 'e4', 'f3', 'g2'].collect {
+        colRow -> new Position(colRow)
+    };
+    private static final def DIAGONAL_FROM_BOTTOM_LEFT = ['h8', 'g7', 'f6', 'e5', 'd4', 'c3', 'b2'].collect {
+        colRow -> new Position(colRow)
+    };
+    private static final def DIAGONAL_FROM_TOP_RIGHT = ['g7', 'f6', 'e5', 'd4', 'c3', 'b2', 'a1'].collect {
         colRow -> new Position(colRow)
     };
 
@@ -52,7 +58,16 @@ class BishopTest {
 
     @Test
     void testDiagonalFromTopRight() {
-        //todo
+        Set<Position> positions = bishop.getNextPositions(new Position('h' as char, 8), board);
+        assert positions.containsAll(DIAGONAL_FROM_TOP_RIGHT);
+        assert DIAGONAL_FROM_TOP_RIGHT.containsAll(positions);
+    }
+
+    @Test
+    void testDiagonalFromBottomLeft() {
+        Set<Position> positions = bishop.getNextPositions(new Position('a' as char, 1), board);
+        assert positions.containsAll(DIAGONAL_FROM_BOTTOM_LEFT);
+        assert DIAGONAL_FROM_BOTTOM_LEFT.containsAll(positions);
     }
 
     @Test

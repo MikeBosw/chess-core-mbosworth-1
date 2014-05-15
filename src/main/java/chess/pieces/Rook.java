@@ -1,9 +1,9 @@
 package chess.pieces;
 
-import chess.BoardView;
 import chess.Player;
-import chess.Position;
+import com.google.common.collect.ImmutableSet;
 
+import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -11,8 +11,12 @@ import java.util.Set;
  */
 public class Rook extends Piece {
 
+    private static final Set<int[]> MOVE_OFFSETS = ImmutableSet.copyOf(new int[][]{
+            {1, 0}, {0, 1}, {-1, 0}, {0, -1},
+    });
+
     public Rook(Player owner) {
-        super(owner);
+        super(owner, true);
     }
 
     @Override
@@ -21,7 +25,7 @@ public class Rook extends Piece {
     }
 
     @Override
-    public Set<Position> getNextPositions(Position origin, BoardView boardView) {
-        throw new UnsupportedOperationException("Not yet implemented.");
+    protected Collection<int[]> getSimpleMoveOffsets() {
+        return MOVE_OFFSETS;
     }
 }
