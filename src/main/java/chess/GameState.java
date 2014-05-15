@@ -43,7 +43,7 @@ public class GameState implements BoardView {
      * Create the game state.
      */
     public GameState() {
-        positionToPieceMap = new HashMap<>();
+        positionToPieceMap = new HashMap<Position, Piece>();
     }
 
     public Player getCurrentPlayer() {

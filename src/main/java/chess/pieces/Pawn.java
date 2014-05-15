@@ -37,7 +37,7 @@ public class Pawn extends Piece {
 
     @Override
     public Set<Position> getNextPositions(Position origin, BoardView boardView) {
-        Set<Position> positions = new HashSet<>();
+        Set<Position> positions = new HashSet<Position>();
         findNextCapturePositions(origin, boardView, positions);
         findNextPeacefulPositions(origin, boardView, positions);
         return positions;

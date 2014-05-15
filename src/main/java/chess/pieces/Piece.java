@@ -41,7 +41,7 @@ public abstract class Piece {
 
     public Set<Position> getNextPositions(Position origin, BoardView boardView) {
         Collection<int[]> moveOffsets = getSimpleMoveOffsets();
-        Set<Position> totalPositions = new HashSet<>();
+        Set<Position> totalPositions = new HashSet<Position>();
         final char column = origin.getColumn();
         final int row = origin.getRow();
         for (int[] offset : moveOffsets) {
